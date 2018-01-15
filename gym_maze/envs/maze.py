@@ -17,14 +17,18 @@ class MazeEnv(gym.Env):
                  action_type='VonNeumann',
                  obs_type='full',
                  live_display=False,
-                 render_trace=False):
+                 render_trace=False,
+                 max_steps=100
+                ):
         """Initialize the maze. DType: list"""
         # Maze: 0: free space, 1: wall
         self.maze_generator = maze_generator
         self.maze = np.array(self.maze_generator.get_maze())
         self.maze_size = self.maze.shape
         self.init_state, self.goal_states = self.maze_generator.sample_state()
-        
+        self.max_steps = max_steps
+        self.count = 0
+
         #######
         # TODO: Eliminate traces for _reset and _step, only show during _render for ax_imgs
         #######
@@ -92,6 +96,10 @@ class MazeEnv(gym.Env):
         
         # Additional info
         info = {}
+
+        self.count += 1
+        if self.count >= self.max_steps:
+            done = True
         
         return self._get_obs(), reward, done, info
     
@@ -106,6 +114,9 @@ class MazeEnv(gym.Env):
         self.ax_imgs = []
         # Clean the traces of the trajectory
         self.traces = [self.init_state]
+
+        # Reset the step count
+        self.count = 0
         
         return self._get_obs()
     
